@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Titanium Shortlist 2026 — Predict the Winners!</title>
+<style>
+  :root{
+    --bg:#0e0e12; --card:#1a1a22; --card2:#20202b; --line:#2c2c3a;
+    --text:#f4f4f6; --muted:#a0a0b0; --accent:#ffd23f; --accent2:#ff8a3d; --ok:#34d399;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--text);line-height:1.5}
+  a{color:var(--accent)}
+  header{padding:48px 20px 36px;text-align:center;
+    background:radial-gradient(900px 380px at 50% -120px,rgba(255,210,63,.22),transparent 70%),#101017;
+    border-bottom:1px solid var(--line)}
+  header h1{margin:0 0 6px;font-size:clamp(28px,5vw,46px);letter-spacing:-.5px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{margin:6px auto 0;max-width:620px;color:var(--muted);font-size:16px}
+  .wrap{max-width:860px;margin:0 auto;padding:24px 16px 140px}
+  .namecard{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);
+    border-radius:16px;padding:20px;margin:18px 0 28px}
+  .namecard label{display:block;font-weight:600;margin-bottom:8px}
+  .namecard .req{color:var(--accent2)}
+  input[type=text],textarea{width:100%;background:#0f0f16;border:1px solid var(--line);border-radius:10px;
+    color:var(--text);padding:12px 14px;font-size:15px;font-family:inherit;outline:none}
+  input[type=text]:focus,textarea:focus{border-color:var(--accent)}
+  textarea{resize:vertical;min-height:60px}
+  .case{display:flex;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:14px;margin:14px 0;align-items:flex-start}
+  .case .thumb{flex:0 0 150px;width:150px;height:112px;border-radius:10px;overflow:hidden;background:#000;
+    border:1px solid var(--line)}
+  .case .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .case .body{flex:1;min-width:0}
+  .case .num{display:inline-block;font-size:12px;font-weight:700;color:#0e0e12;background:var(--accent);
+    border-radius:6px;padding:1px 7px;margin-right:8px;vertical-align:middle}
+  .case h3{margin:2px 0 2px;font-size:17px;display:inline}
+  .case .credit{color:var(--muted);font-size:13px;margin:6px 0 4px}
+  .case .link{font-size:13px;text-decoration:none}
+  .case .link:hover{text-decoration:underline}
+  .case .qlabel{font-size:13px;color:var(--muted);margin:12px 0 6px;font-weight:600}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:rgba(14,14,18,.92);backdrop-filter:blur(8px);
+    border-top:1px solid var(--line);padding:14px 16px;display:flex;justify-content:center}
+  .bar .inner{max-width:860px;width:100%;display:flex;gap:14px;align-items:center;justify-content:space-between}
+  .bar .count{color:var(--muted);font-size:13px}
+  button{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0e0e12;border:none;
+    font-weight:700;font-size:16px;padding:13px 26px;border-radius:12px;cursor:pointer}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .overlay{position:fixed;inset:0;background:rgba(8,8,12,.96);display:none;align-items:center;justify-content:center;
+    text-align:center;padding:24px;z-index:50}
+  .overlay.show{display:flex}
+  .overlay .box{max-width:460px}
+  .overlay h2{font-size:30px;margin:0 0 10px;color:var(--ok)}
+  .overlay p{color:var(--muted)}
+  .err{color:var(--accent2);font-size:13px;margin-top:8px;min-height:18px}
+  @media(max-width:560px){
+    .case{flex-direction:column}
+    .case .thumb{width:100%;flex-basis:auto;height:180px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Let's predict winners!</h1>
+  <p>The 18 Cannes Lions <strong>Titanium 2026 shortlisted</strong> cases. For each one, predict which award you think it'll take home. May the sharpest eye win.</p>
+</header>
+
+<div class="wrap">
+  <div class="namecard">
+    <label for="name">First things first — what's your name? <span class="req">*</span></label>
+    <input type="text" id="name" placeholder="Type your name" autocomplete="name">
+  </div>
+
+  <div id="cases"></div>
+</div>
+
+<div class="bar">
+  <div class="inner">
+    <span class="count" id="count">0 / 18 predictions filled</span>
+    <div style="text-align:right">
+      <button id="submit">Submit my predictions</button>
+      <div class="err" id="err"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="box">
+    <h2>Predictions locked in! 🏆</h2>
+    <p>Thanks — your bets have been saved. Good luck!</p>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIG — paste your Apps Script Web App URL here (ends in /exec)
+// ============================================================
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx7OLrqsD6vn8q5mWkgX-K-KO1issxAKgsvqccfTtSGCruTs3VGqtbioLaIH6gFR80Uzg/exec";
+
+const BASE = "https://www.lovethework.com";
+const img = h => `https://ascentialcdn.filespin.io/api/v1/conversion/${h}?resize=800,600&quality=85&format=webp`;
+
+const CASES = [
+  {t:"DUOBELL", c:"SKODA, AMV BBDO", p:"/work/entries/duobell-793334", i:"3bd16cb8bf3e4457931fa9fb0f229dc5"},
+  {t:"WELCOME BACK, PAISANO", c:"TECATE, LEPUB", p:"/work/entries/welcome-back-paisano-793406", i:"bbd54e3aeb9a442188d16599a29d25a5"},
+  {t:"THE UNDROPPED KIT", c:"ASICS, GUT", p:"/work/entries/the-undropped-kit-793407", i:"b965086289a24f9fa6613ba85a393624"},
+  {t:"VEHICLE OF HOPE", c:"CARITAS, DIFFER", p:"/work/entries/vehicle-of-hope-793310", i:"9975b14b1e7647b983bec25a3c5af021"},
+  {t:"IKEA PREOWNED", c:"IKEA, McCANN SPAIN", p:"/work/entries/ikea-preowned-793396", i:"00151590e026483bb01a382267b4c5f4"},
+  {t:"TOCAYOS", c:"HEINEKEN, LEPUB", p:"/work/entries/tocayos-793372", i:"f94212ccbc4f4a5bb5d68cee89cab74d"},
+  {t:"VASELINE ORIGINALS", c:"VASELINE, OGILVY SINGAPORE", p:"/work/entries/vaseline-originals-793423", i:"a51e4b12607a4d19abcc64bca7c099f5"},
+  {t:"EXPEDITION IMPOSSIBLE", c:"COLUMBIA SPORTSWEAR, ADAM&EVE\\TBWA", p:"/work/entries/expedition-impossible-793436", i:"bf27011e79f94826a41c286a1bbd22d5"},
+  {t:"REVERSE MEDIA SCHEDULE", c:"SEA CLEANERS & JCDECAUX, DENTSU CREATIVE AOTEAROA", p:"/work/entries/reverse-media-schedule-793352", i:"b618f93d54ed4baa8306c6dab7e100f1"},
+  {t:"SOS POS", c:"BCP, CIRCUS GREY", p:"/work/entries/sos-pos-793388", i:"1d46e6542c474e14a830761bec4b045a"},
+  {t:"THE MISSING MANAGERS", c:"XBOX, McCANN", p:"/work/entries/the-missing-managers-793375", i:"98cb80fc7d614feab906c44dddcfd560"},
+  {t:"OREO COWS", c:"OREO, VML", p:"/work/entries/oreo-cows-793409", i:"f34bbf1c3b224a62a7b93946bce31756"},
+  {t:"THE LEGACY OF VIRGINIA GIUFFRE", c:"VIRGINIA GIUFFRE, DINI VON MUEFFLING COMMUNICATIONS", p:"/work/entries/the-legacy-of-virginia-giuffre-793354", i:"2dd18c8da8ce4ce2b169587c6309a015"},
+  {t:"THE FAROE ISLANDS SPACE PROGRAM", c:"SKF, NORD DDB", p:"/work/entries/the-faroe-islands-space-program-793418", i:"8cc6a1fe5a8848148606cea4c9ae9d72"},
+  {t:"600K NETWORK", c:"COMANDO CON VENEZUELA, RAINBOW LOBSTER", p:"/work/entries/600k-network-793442", i:"7c4188ed3df9424d9968561891b8be22"},
+  {t:"HAVEN", c:"SUNCORP INSURANCE, LEO", p:"/work/entries/haven-793348", i:"77cfcfb8b3214196bb50aae00975065b"},
+  {t:"BIRDS NEVER FORGET TO FLY", c:"PSP, PLAYMAKERS", p:"/work/entries/birds-never-forget-to-fly-793380", i:"2863f0fdb5234183858af5fbb1cf0cc1"},
+  {t:"THE PHILIPSTOWN WIRECAR GRAND PRIX", c:"THE PHILIPSTOWN WIRECAR FOUNDATION, ACCENTURE SONG SA", p:"/work/entries/the-philipstown-wirecar-grand-prix-793383", i:"19ae1d84c90f44899c8ef700ef8200c3"}
+];
+
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+const host = document.getElementById("cases");
+host.innerHTML = CASES.map((c,idx)=>{
+  const n = idx+1;
+  return `<div class="case">
+    <div class="thumb"><img loading="lazy" src="${img(c.i)}" alt="${esc(c.t)}"></div>
+    <div class="body">
+      <div><span class="num">${n}</span><h3>${esc(c.t)}</h3></div>
+      <div class="credit">${esc(c.c)}</div>
+      <a class="link" href="${BASE+c.p}" target="_blank" rel="noopener">View the case ↗</a>
+      <div class="qlabel">Which award do you predict this will win?</div>
+      <textarea data-q="${n}" placeholder="e.g. Grand Prix / Gold / Silver / Bronze / no win — add a reason if you like"></textarea>
+    </div>
+  </div>`;
+}).join("");
+
+const countEl = document.getElementById("count");
+const errEl = document.getElementById("err");
+const areas = () => Array.from(document.querySelectorAll("textarea[data-q]"));
+function refresh(){
+  const filled = areas().filter(a=>a.value.trim()!=="").length;
+  countEl.textContent = `${filled} / ${CASES.length} predictions filled`;
+}
+host.addEventListener("input", refresh);
+
+document.getElementById("submit").addEventListener("click", async ()=>{
+  errEl.textContent = "";
+  const name = document.getElementById("name").value.trim();
+  if(!name){ errEl.textContent = "Please add your name first."; document.getElementById("name").focus(); return; }
+  if(WEB_APP_URL.indexOf("PASTE_") === 0){ errEl.textContent = "Setup not finished: add your Web App URL in the code."; return; }
+
+  const btn = document.getElementById("submit");
+  btn.disabled = true; btn.textContent = "Saving…";
+
+  const data = new URLSearchParams();
+  data.append("name", name);
+  areas().forEach(a => data.append("q"+a.dataset.q, a.value.trim()));
+
+  try{
+    await fetch(WEB_APP_URL, { method:"POST", mode:"no-cors", body:data });
+    document.getElementById("overlay").classList.add("show");
+  }catch(e){
+    errEl.textContent = "Something went wrong saving. Please try again.";
+    btn.disabled = false; btn.textContent = "Submit my predictions";
+  }
+});
+
+refresh();
+</script>
+</body>
+</html>
