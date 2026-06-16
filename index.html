@@ -54,6 +54,8 @@
   .overlay .box{max-width:460px}
   .overlay h2{font-size:30px;margin:0 0 10px;color:var(--ok)}
   .overlay p{color:var(--muted)}
+  .homebtn{display:inline-block;margin-top:22px;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#0e0e12;text-decoration:none;font-weight:700;font-size:16px;padding:13px 26px;border-radius:12px}
   .err{color:var(--accent2);font-size:13px;margin-top:8px;min-height:18px}
   @media(max-width:560px){
     .case{flex-direction:column}
@@ -90,6 +92,7 @@
   <div class="box">
     <h2>Predictions locked in! 🏆</h2>
     <p>Thanks — your bets have been saved. Good luck!</p>
+    <a class="homebtn" href="./">Go back to homepage</a>
   </div>
 </div>
 
@@ -135,7 +138,7 @@ host.innerHTML = CASES.map((c,idx)=>{
       <div class="credit">${esc(c.c)}</div>
       <a class="link" href="${BASE+c.p}" target="_blank" rel="noopener">View the case ↗</a>
       <div class="qlabel">Which award do you predict this will win?</div>
-      <textarea data-q="${n}" placeholder="e.g. Grand Prix / Gold / Silver / Bronze / no win — add a reason if you like"></textarea>
+      <textarea data-q="${n}"></textarea>
     </div>
   </div>`;
 }).join("");
